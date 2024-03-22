@@ -24,6 +24,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	cmath "github.com/ethereum/go-ethereum/common/math"
+	"github.com/ethereum/go-ethereum/core/tracing"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto/kzg4844"
@@ -275,11 +276,15 @@ func (st *StateTransition) buyGas() error {
 	if err := st.gp.SubGas(st.msg.GasLimit); err != nil {
 		return err
 	}
-	st.gasRemaining += st.msg.GasLimit
+
+	if st.evm.Config.Tracer != nil && st.evm.Config.Tracer.OnGasChange != nil {
+		st.evm.Config.Tracer.OnGasChange(0, st.msg.GasLimit, tracing.GasChangeTxInitialBalance)
+	}
+	st.gasRemaining = st.msg.GasLimit
 
 	st.initialGas = st.msg.GasLimit
 	mgvalU256, _ := uint256.FromBig(mgval)
-	st.state.SubBalance(st.msg.From, mgvalU256)
+	st.state.SubBalance(st.msg.From, mgvalU256, tracing.BalanceDecreaseGasBuy)
 	return nil
 }
 
@@ -393,13 +398,6 @@ func (st *StateTransition) TransitionDb() (*ExecutionResult, error) {
 		return nil, err
 	}
 
-	if tracer := st.evm.Config.Tracer; tracer != nil {
-		tracer.CaptureTxStart(st.initialGas)
-		defer func() {
-			tracer.CaptureTxEnd(st.gasRemaining)
-		}()
-	}
-
 	var (
 		msg              = st.msg
 		sender           = vm.AccountRef(msg.From)
@@ -414,6 +412,9 @@ func (st *StateTransition) TransitionDb() (*ExecutionResult, error) {
 	}
 	if st.gasRemaining < gas {
 		return nil, fmt.Errorf("%w: have %d, want %d", ErrIntrinsicGas, st.gasRemaining, gas)
+	}
+	if t := st.evm.Config.Tracer; t != nil && t.OnGasChange != nil {
+		t.OnGasChange(st.gasRemaining, st.gasRemaining-gas, tracing.GasChangeTxIntrinsicGas)
 	}
 	st.gasRemaining -= gas
 
@@ -469,7 +470,7 @@ func (st *StateTransition) TransitionDb() (*ExecutionResult, error) {
 	} else {
 		fee := new(uint256.Int).SetUint64(st.gasUsed())
 		fee.Mul(fee, effectiveTipU256)
-		st.state.AddBalance(st.evm.Context.Coinbase, fee)
+		st.state.AddBalance(st.evm.Context.Coinbase, fee, tracing.BalanceIncreaseRewardTransactionFee)
 		// CHANGE(taiko): basefee is not burnt, but sent to a treasury and block.coinbase instead.
 		if st.evm.ChainConfig().Taiko && st.evm.Context.BaseFee != nil && !st.msg.IsAnchor {
 			totalFee := new(big.Int).Mul(st.evm.Context.BaseFee, new(big.Int).SetUint64(st.gasUsed()))
@@ -478,7 +479,7 @@ func (st *StateTransition) TransitionDb() (*ExecutionResult, error) {
 				new(big.Int).SetUint64(100),
 			)
 			feeTreasury := new(big.Int).Sub(totalFee, feeCoinbase)
-			st.state.AddBalance(st.getTreasuryAddress(), uint256.MustFromBig(feeTreasury))
+			st.state.AddBalance(st.getTreasuryAddress(), uint256.MustFromBig(feeTreasury), tracing.BalanceIncreaseTreasury)
 			st.state.AddBalance(st.evm.Context.Coinbase, uint256.MustFromBig(feeCoinbase))
 		}
 	}
@@ -497,14 +498,23 @@ func (st *StateTransition) refundGas(refundQuotient uint64) uint64 {
 	if refund > st.state.GetRefund() {
 		refund = st.state.GetRefund()
 	}
+
+	if st.evm.Config.Tracer != nil && st.evm.Config.Tracer.OnGasChange != nil && refund > 0 {
+		st.evm.Config.Tracer.OnGasChange(st.gasRemaining, st.gasRemaining+refund, tracing.GasChangeTxRefunds)
+	}
+
 	st.gasRemaining += refund
 
-	// Do not change the balance in anchor transactions.
+	// CHANGE(taiko): do not change the balance in anchor transactions.
 	if !st.msg.IsAnchor {
 		// Return ETH for remaining gas, exchanged at the original rate.
 		remaining := uint256.NewInt(st.gasRemaining)
-		remaining = remaining.Mul(remaining, uint256.MustFromBig(st.msg.GasPrice))
-		st.state.AddBalance(st.msg.From, remaining)
+		remaining.Mul(remaining, uint256.MustFromBig(st.msg.GasPrice))
+		st.state.AddBalance(st.msg.From, remaining, tracing.BalanceIncreaseGasReturn)
+
+		if st.evm.Config.Tracer != nil && st.evm.Config.Tracer.OnGasChange != nil && st.gasRemaining > 0 {
+			st.evm.Config.Tracer.OnGasChange(st.gasRemaining, 0, tracing.GasChangeTxLeftOverReturned)
+		}
 	}
 
 	// Also return remaining gas to the block gas counter so it is

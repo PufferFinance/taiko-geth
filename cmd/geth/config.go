@@ -177,6 +177,7 @@ func makeFullNode(ctx *cli.Context) (*node.Node, ethapi.Backend) {
 		v := ctx.Uint64(utils.OverrideVerkle.Name)
 		cfg.Eth.OverrideVerkle = &v
 	}
+
 	backend, eth := utils.RegisterEthService(stack, &cfg.Eth)
 
 	// CHANGE(TAIKO): register Taiko RPC APIs.
