@@ -33,3 +33,6 @@ var HeklaGenesisAllocJSON []byte
 
 //go:embed mainnet.json
 var MainnetGenesisAllocJSON []byte
+
+//go:embed unifi_l2.json
+var UniFiTestnetAllocJSON []byte
