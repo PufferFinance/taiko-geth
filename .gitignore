@@ -60,3 +60,4 @@ logs/
 tests/spec-tests/
 
 unifi-node-genesis/
+data/
