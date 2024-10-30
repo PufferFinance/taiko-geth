@@ -14,6 +14,7 @@ var (
 	HeklaOntakeBlock          = new(big.Int).SetUint64(840_512)
 	MainnetOntakeBlock        = new(big.Int).SetUint64(538_304)
 	UniFiDevnetOntakeBlock    = new(big.Int).SetUint64(2)
+	UniFiTestnetOntakeBlock   = new(big.Int).SetUint64(0)
 )
 
 // TaikoGenesisBlock returns the Taiko network genesis block configs.
@@ -58,6 +59,10 @@ func TaikoGenesisBlock(networkID uint64) *Genesis {
 	case params.UniFiDevnetNetworkID.Uint64():
 		chainConfig.ChainID = params.UniFiDevnetNetworkID
 		chainConfig.OntakeBlock = UniFiDevnetOntakeBlock
+		allocJSON = taikoGenesis.UniFiDevnetAllocJSON
+	case params.UniFiTestnetNetworkID.Uint64():
+		chainConfig.ChainID = params.UniFiTestnetNetworkID
+		chainConfig.OntakeBlock = UniFiTestnetOntakeBlock
 		allocJSON = taikoGenesis.UniFiTestnetAllocJSON
 	default:
 		chainConfig.ChainID = params.TaikoInternalL2ANetworkID

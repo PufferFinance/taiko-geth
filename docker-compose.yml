@@ -23,7 +23,7 @@ services:
       - --datadir
       - /data/taiko-geth
       - --networkid
-      - "167200"
+      - "8787"
       - --metrics
       - --metrics.expensive
       - --metrics.addr

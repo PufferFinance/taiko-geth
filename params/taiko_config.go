@@ -21,6 +21,7 @@ var (
 	KatlaNetworkID            = big.NewInt(167008)
 	HeklaNetworkID            = big.NewInt(167009)
 	UniFiDevnetNetworkID      = big.NewInt(167_200)
+	UniFiTestnetNetworkID     = big.NewInt(8787)
 )
 
 var networkIDToChainConfig = map[*big.Int]*ChainConfig{
