@@ -46,7 +46,7 @@ var _ = new(Taiko)
 
 func New(chainConfig *params.ChainConfig) *Taiko {
 	//taikoL2AddressPrefix := strings.TrimPrefix(chainConfig.ChainID.String(), "0")
-	taikoL2Address := common.HexToAddress("0x27918809FDB8d0F548790d4a8A2C54975b37E0b8")
+	taikoL2Address := common.HexToAddress("0x9A7fe8e9852c684DD03ce9caEa003F5Fc0a3135b")
 
 	return &Taiko{
 		chainConfig:    chainConfig,
