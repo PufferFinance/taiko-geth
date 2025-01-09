@@ -11,6 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus"
 	"github.com/ethereum/go-ethereum/core/state"
+	"github.com/ethereum/go-ethereum/core/tracing"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/log"
@@ -207,7 +208,7 @@ func (t *Taiko) Finalize(chain consensus.ChainHeaderReader, header *types.Header
 	header.Difficulty = common.Big0
 	// Withdrawals processing.
 	for _, w := range withdrawals {
-		state.AddBalance(w.Address, uint256.MustFromBig(new(big.Int).SetUint64(w.Amount)))
+		state.AddBalance(w.Address, uint256.MustFromBig(new(big.Int).SetUint64(w.Amount)), tracing.BalanceIncreaseWithdrawal)
 	}
 	header.Root = state.IntermediateRoot(true)
 }

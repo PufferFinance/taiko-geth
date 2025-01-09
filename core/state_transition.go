@@ -480,7 +480,7 @@ func (st *StateTransition) TransitionDb() (*ExecutionResult, error) {
 			)
 			feeTreasury := new(big.Int).Sub(totalFee, feeCoinbase)
 			st.state.AddBalance(st.getTreasuryAddress(), uint256.MustFromBig(feeTreasury), tracing.BalanceIncreaseTreasury)
-			st.state.AddBalance(st.evm.Context.Coinbase, uint256.MustFromBig(feeCoinbase))
+			st.state.AddBalance(st.evm.Context.Coinbase, uint256.MustFromBig(feeCoinbase), tracing.BalanceIncreaseBaseFeeSharing)
 		}
 	}
 
