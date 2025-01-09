@@ -508,7 +508,7 @@ func (s *stateObject) CodeSize() int {
 	return size
 }
 
-func (s *stateObject) SetCode(codeHash common.Hash, code []byte) {
+func (s *stateObject) SetCode(codeHash common.Hash, code []byte) (prev []byte) {
 	prevcode := s.Code()
 	s.db.journal.append(codeChange{
 		account:  &s.address,
@@ -519,6 +519,7 @@ func (s *stateObject) SetCode(codeHash common.Hash, code []byte) {
 		s.db.logger.OnCodeChange(s.address, common.BytesToHash(s.CodeHash()), prevcode, codeHash, code)
 	}
 	s.setCode(codeHash, code)
+	return prev
 }
 
 func (s *stateObject) setCode(codeHash common.Hash, code []byte) {
