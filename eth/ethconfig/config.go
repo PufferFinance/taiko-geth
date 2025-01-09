@@ -160,6 +160,10 @@ type Config struct {
 
 	// OverrideVerkle (TODO: remove after the fork)
 	OverrideVerkle *uint64 `toml:",omitempty"`
+
+
+	// CHANGE(taiko): add preconfirmation forwarding URL
+	PreconfirmationForwardingURL string
 }
 
 // CreateConsensusEngine creates a consensus engine for the given chain config.
@@ -168,7 +172,7 @@ type Config struct {
 func CreateConsensusEngine(config *params.ChainConfig, db ethdb.Database) (consensus.Engine, error) {
 	// CHANGE(taiko): use Taiko consensus engine when the --taiko flag is set.
 	if config.Taiko {
-		return taiko.New(config), nil
+		return taiko.New(config, db), nil
 	}
 	// If proof-of-authority is requested, set it up
 	if config.Clique != nil {

@@ -2053,3 +2053,8 @@ func testRPCResponseWithFile(t *testing.T, testid int, result interface{}, rpc s
 	}
 	require.JSONEqf(t, string(want), string(data), "test %d: json not match, want: %s, have: %s", testid, string(want), string(data))
 }
+
+// CHANGE(taiko): add preconfirmation forwarding URL
+func (b testBackend) GetPreconfirmationForwardingURL() string {
+	return ""
+}

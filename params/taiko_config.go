@@ -22,6 +22,7 @@ var (
 	HeklaNetworkID            = big.NewInt(167009)
 	UniFiDevnetNetworkID      = big.NewInt(167_200)
 	UniFiTestnetNetworkID     = big.NewInt(8787)
+	PreconfDevnetNetworkID    = big.NewInt(167010)
 )
 
 var networkIDToChainConfig = map[*big.Int]*ChainConfig{
@@ -35,6 +36,7 @@ var networkIDToChainConfig = map[*big.Int]*ChainConfig{
 	JolnirNetworkID:            TaikoChainConfig,
 	KatlaNetworkID:             TaikoChainConfig,
 	HeklaNetworkID:             TaikoChainConfig,
+	PreconfDevnetNetworkID:     TaikoChainConfig,
 	MainnetChainConfig.ChainID: MainnetChainConfig,
 	SepoliaChainConfig.ChainID: SepoliaChainConfig,
 	GoerliChainConfig.ChainID:  GoerliChainConfig,
