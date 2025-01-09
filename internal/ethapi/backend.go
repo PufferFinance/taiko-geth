@@ -98,8 +98,6 @@ type Backend interface {
 	BloomStatus() (uint64, uint64)
 	ServiceFilter(ctx context.Context, session *bloombits.MatcherSession)
 
-	// CHANGE(taiko): add preconfirmation forwarding URL
-	GetPreconfirmationForwardingURL() string
 }
 
 func GetAPIs(apiBackend Backend) []rpc.API {

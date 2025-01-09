@@ -18,11 +18,7 @@ var (
 		Usage:    "Taiko network",
 		Category: flags.TaikoCategory,
 	}
-	PreconfirmationForwardingURLFlag = &cli.StringFlag{
-		Name:     "taiko.preconfirmationForwardingUrl",
-		Usage:    "URL to forward RPC requests before confirmation",
-		Category: flags.TaikoCategory,
-	}
+
 )
 
 // RegisterTaikoAPIs initializes and registers the Taiko RPC APIs.

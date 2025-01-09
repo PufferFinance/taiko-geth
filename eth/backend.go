@@ -253,7 +253,7 @@ func New(stack *node.Node, config *ethconfig.Config) (*Ethereum, error) {
 	eth.miner.SetExtra(makeExtraData(config.Miner.ExtraData))
 
 	// CHANGE(taiko): set up the pre-confirmation forwarding URL
-	eth.APIBackend = &EthAPIBackend{stack.Config().ExtRPCEnabled(), stack.Config().AllowUnprotectedTxs, eth, nil, config.PreconfirmationForwardingURL}	
+	eth.APIBackend = &EthAPIBackend{stack.Config().ExtRPCEnabled(), stack.Config().AllowUnprotectedTxs, eth, nil}
 	if eth.APIBackend.allowUnprotectedTxs {
 		log.Info("Unprotected transactions allowed")
 	}

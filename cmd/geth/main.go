@@ -250,8 +250,6 @@ func init() {
 		debug.Flags,
 		metricsFlags,
 	)
-	// CHANGE(taiko): append Taiko flags into the original GETH flags
-	app.Flags = append(app.Flags, utils.TaikoFlag, utils.PreconfirmationForwardingURLFlag)
 
 	flags.AutoEnvVars(app.Flags, "GETH")
 

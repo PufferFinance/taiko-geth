@@ -178,11 +178,6 @@ func makeFullNode(ctx *cli.Context) (*node.Node, ethapi.Backend) {
 		cfg.Eth.OverrideVerkle = &v
 	}
 
-	// CHANGE(taiko): set preconfirmation forwarding URL.
-	if ctx.IsSet(utils.PreconfirmationForwardingURLFlag.Name) {
-		cfg.Eth.PreconfirmationForwardingURL = ctx.String(utils.PreconfirmationForwardingURLFlag.Name)
-	}
-
 	backend, eth := utils.RegisterEthService(stack, &cfg.Eth)
 
 	// CHANGE(TAIKO): register Taiko RPC APIs.
