@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	TaikoFlag = &cli.BoolFlag{
+	TaikoFlag = cli.BoolFlag{
 		Name:     "taiko",
 		Usage:    "Taiko network",
 		Category: flags.TaikoCategory,
