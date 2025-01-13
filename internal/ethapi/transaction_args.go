@@ -475,6 +475,27 @@ func (args *TransactionArgs) ToMessage(baseFee *big.Int) *core.Message {
 func (args *TransactionArgs) ToTransaction() *types.Transaction {
 	var data types.TxData
 	switch {
+	case args.AuthorizationList != nil:
+		al := types.AccessList{}
+		if args.AccessList != nil {
+			al = *args.AccessList
+		}
+		authList := []types.Authorization{}
+		if args.AuthorizationList != nil {
+			authList = args.AuthorizationList
+		}
+		data = &types.SetCodeTx{
+			To:         *args.To,
+			ChainID:    args.ChainID.ToInt().Uint64(),
+			Nonce:      uint64(*args.Nonce),
+			Gas:        uint64(*args.Gas),
+			GasFeeCap:  uint256.MustFromBig((*big.Int)(args.MaxFeePerGas)),
+			GasTipCap:  uint256.MustFromBig((*big.Int)(args.MaxPriorityFeePerGas)),
+			Value:      uint256.MustFromBig((*big.Int)(args.Value)),
+			Data:       args.data(),
+			AccessList: al,
+			AuthList:   authList,
+		}
 	case args.BlobHashes != nil:
 		al := types.AccessList{}
 		if args.AccessList != nil {
