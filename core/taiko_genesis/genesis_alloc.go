@@ -39,7 +39,3 @@ var UniFiDevnetAllocJSON []byte
 
 //go:embed testnet_unifi_l2.json
 var UniFiTestnetAllocJSON []byte
-
-//go:embed preconf_devnet.json
-var PreconfDevnetGenesisAllocJSON []byte
-

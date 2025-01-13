@@ -66,10 +66,6 @@ func TaikoGenesisBlock(networkID uint64) *Genesis {
 		chainConfig.ChainID = params.UniFiTestnetNetworkID
 		chainConfig.OntakeBlock = UniFiTestnetOntakeBlock
 		allocJSON = taikoGenesis.UniFiTestnetAllocJSON
-	case params.PreconfDevnetNetworkID.Uint64():
-		chainConfig.ChainID = params.PreconfDevnetNetworkID
-		chainConfig.OntakeBlock = PreconfDevnetOntakeBlock
-		allocJSON = taikoGenesis.PreconfDevnetGenesisAllocJSON
 	default:
 		chainConfig.ChainID = params.TaikoInternalL2ANetworkID
 		chainConfig.OntakeBlock = InternalDevnetOntakeBlock
