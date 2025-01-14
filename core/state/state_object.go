@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"fmt"
 	"maps"
+	"slices"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -545,13 +546,15 @@ func (s *stateObject) CodeSize() int {
 	return size
 }
 
-func (s *stateObject) SetCode(codeHash common.Hash, code []byte) {
-	s.db.journal.setCode(s.address)
+func (s *stateObject) SetCode(codeHash common.Hash, code []byte) (prev []byte) {
+	prev = slices.Clone(s.code)
+	s.db.journal.setCode(s.address, prev)
 	if s.db.logger != nil && s.db.logger.OnCodeChange != nil {
 		// TODO remove prevcode from this callback
 		s.db.logger.OnCodeChange(s.address, common.BytesToHash(s.CodeHash()), nil, codeHash, code)
 	}
 	s.setCode(codeHash, code)
+	return prev
 }
 
 func (s *stateObject) setCode(codeHash common.Hash, code []byte) {
