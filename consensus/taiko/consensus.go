@@ -10,9 +10,11 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus"
+	"github.com/ethereum/go-ethereum/core/rawdb"
 	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/ethdb"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
@@ -39,18 +41,20 @@ var (
 // Taiko is a consensus engine used by L2 rollup.
 type Taiko struct {
 	chainConfig    *params.ChainConfig
+	chainDB        ethdb.Database
 	taikoL2Address common.Address
 }
 
 var _ = new(Taiko)
 
-func New(chainConfig *params.ChainConfig) *Taiko {
+func New(chainConfig *params.ChainConfig, chainDB ethdb.Database) *Taiko {
 	//taikoL2AddressPrefix := strings.TrimPrefix(chainConfig.ChainID.String(), "0")
 	taikoL2Address := common.HexToAddress("0x9A7fe8e9852c684DD03ce9caEa003F5Fc0a3135b")
 
 	return &Taiko{
 		chainConfig:    chainConfig,
 		taikoL2Address: taikoL2Address,
+		chainDB: chainDB,
 	}
 }
 
@@ -77,7 +81,7 @@ func (t *Taiko) VerifyHeader(chain consensus.ChainHeaderReader, header *types.He
 		return consensus.ErrUnknownAncestor
 	}
 	// Sanity checks passed, do a proper verification
-	return t.verifyHeader(chain, header, parent, time.Now().Unix())
+	return t.verifyHeader(header, parent, time.Now().Unix())
 }
 
 // VerifyHeaders is similar to VerifyHeader, but verifies a batch of headers
@@ -104,7 +108,7 @@ func (t *Taiko) VerifyHeaders(chain consensus.ChainHeaderReader, headers []*type
 			if parent == nil {
 				err = consensus.ErrUnknownAncestor
 			} else {
-				err = t.verifyHeader(chain, header, parent, unixNow)
+				err = t.verifyHeader(header, parent, unixNow)
 			}
 			select {
 			case <-abort:
@@ -116,10 +120,7 @@ func (t *Taiko) VerifyHeaders(chain consensus.ChainHeaderReader, headers []*type
 	return abort, results
 }
 
-func (t *Taiko) verifyHeader(chain consensus.ChainHeaderReader, header, parent *types.Header, unixNow int64) error {
-	if header.Time > uint64(unixNow) {
-		return consensus.ErrFutureBlock
-	}
+func (t *Taiko) verifyHeader(header, parent *types.Header, unixNow int64) error {
 
 	// Ensure that the header's extra-data section is of a reasonable size (<= 32 bytes)
 	if uint64(len(header.Extra)) > params.MaximumExtraDataSize {
@@ -165,6 +166,17 @@ func (t *Taiko) verifyHeader(chain consensus.ChainHeaderReader, header, parent *
 	if header.WithdrawalsHash == nil {
 		return ErrEmptyWithdrawalsHash
 	}
+
+	l1Origin, err := rawdb.ReadL1Origin(t.chainDB, header.Number)
+	if err != nil {
+		return err
+	}
+
+	// If the current block is not a soft block, then check the timestamp.
+	if l1Origin != nil && !l1Origin.IsSoftBlock() && header.Time > uint64(unixNow) {
+		return consensus.ErrFutureBlock
+	}
+
 
 	return nil
 }
