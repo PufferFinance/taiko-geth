@@ -4,7 +4,6 @@ import (
 	"context"
 	"math/big"
 	"sync"
-	"time"
 
 	"github.com/charmbracelet/log"
 
@@ -90,13 +89,6 @@ func (s *Spammer) sendTxs() {
 				account.Mutex.Lock()
 				account.Nonce++
 				account.Mutex.Unlock()
-
-				time.Sleep(100 * time.Millisecond)
-				
-				if err := s.client.LogReceipt(signedTx); err != nil {
-					s.logger.Error("Failed to log receipt", "error", err, "txHash", signedTx.Hash().Hex())
-					continue
-				}
 			}
 		}(account)
 	}

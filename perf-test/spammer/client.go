@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
-	"reflect"
 	"time"
 
 	"github.com/charmbracelet/log"
@@ -79,15 +78,7 @@ func (ec *EthClient) SendTx(account *Account, tx *types.Transaction) (*types.Tra
 		return nil, err
 	}
 
-	res := ec.SendTransaction(ec.ctx, signedTx)
-
-	if reflect.DeepEqual(res, common.Hash{}) {
-		ec.logger.Error("Tx rejected", "hash", res)
-	} else {
-		ec.logger.Info("Submitted tx", "hash", signedTx.Hash(), "nonce", signedTx.Nonce(), "slot deadline")
-	}
-
-	return signedTx, nil
+	return signedTx, ec.SendTransaction(ec.ctx, signedTx)
 }
 
 func (ec *EthClient) LogTx(signedTx *types.Transaction) {
