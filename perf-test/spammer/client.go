@@ -3,6 +3,7 @@ package spammer
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math/big"
 	"reflect"
 	"time"
@@ -101,17 +102,25 @@ func (ec *EthClient) LogTx(signedTx *types.Transaction) {
 	}
 }
 
-func (ec *EthClient) LogReceipt(signedTx *types.Transaction) {
-	txReceipt, err := ec.TransactionReceipt(ec.ctx, signedTx.Hash())
+func (ec *EthClient) LogReceipt(tx *types.Transaction) error {
+	receipt, err := ec.TransactionReceipt(ec.ctx, tx.Hash())
 	if err != nil {
-		if errors.Is(err, ethereum.NotFound) {
-			ec.logger.Error("Transaction receipt not found", "tx hash ", signedTx.Hash())
-			return
-		} else {
-			ec.logger.Error("Failed to get transaction receipt", "error", err)
-		}
+		return fmt.Errorf("failed to get transaction receipt: %w", err)
 	}
-	ec.logger.Warn("Transaction receipt", "tx hash", signedTx.Hash(), "block number", txReceipt.BlockNumber, "status", txReceipt.Status, "cumulative gas used", txReceipt.CumulativeGasUsed, "effective gas price", txReceipt.EffectiveGasPrice, "gas used", txReceipt.GasUsed)
+	
+	if receipt == nil {
+		return fmt.Errorf("receipt not found for transaction %s", tx.Hash().Hex())
+	}
+
+	ec.logger.Warn("Transaction receipt",
+		"tx hash", tx.Hash().Hex(),
+		"block number", receipt.BlockNumber,
+		"status", receipt.Status,
+		"cumulative gas used", receipt.CumulativeGasUsed,
+		"effective gas price", receipt.EffectiveGasPrice,
+		"gas used", receipt.GasUsed)
+	
+	return nil
 }
 
 func (c *EthClient) WaitForTxReceipt(ctx context.Context, txHash common.Hash) (*types.Receipt, error) {

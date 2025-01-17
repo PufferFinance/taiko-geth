@@ -15,9 +15,10 @@ func main() {
 
 	spammer := spammer.New(url, chainID, logger, accounts, maxTxsPerAccount, prefundedAccounts)
 
-	spammer.Start()
+	// Prefund accounts with ETH
 	// spammer.PrefundAccounts()
-	// spammer.SendLegacyTxs()
 
+	// Send n(maxTxsPerAccount) transactions per prefunded account
+	spammer.Start()
 }
 

@@ -73,7 +73,6 @@ func (s *Spammer) sendTxs() {
 			defer s.wg.Done()
 
 			for i := uint64(0); i < s.maxTxsPerAccount; i++ {
-			s.logger.Info("address", account.Address(), "nonce", account.Nonce)
 				legacyTx := &types.LegacyTx{
 					Nonce:    account.Nonce,
 					To:       account.Address(),
@@ -92,11 +91,13 @@ func (s *Spammer) sendTxs() {
 				account.Nonce++
 				account.Mutex.Unlock()
 
-
 				time.Sleep(100 * time.Millisecond)
-				s.client.LogReceipt(signedTx)
+				
+				if err := s.client.LogReceipt(signedTx); err != nil {
+					s.logger.Error("Failed to log receipt", "error", err, "txHash", signedTx.Hash().Hex())
+					continue
+				}
 			}
-
 		}(account)
 	}
 

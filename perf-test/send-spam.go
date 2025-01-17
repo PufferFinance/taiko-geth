@@ -6,12 +6,11 @@ import (
 )
 
 var (
-	url     = "http://3.79.42.126:10001"
+	url     = "http://3.79.42.126:10000"
+	// url     = "http://3.79.42.126:10001"
 	chainID = big.NewInt(8787) // unifi testnet
 	maxTxsPerAccount = uint64(1)
-
 )
-
 
 var (
 	alice   = spammer.Account{PrivKey: "7ac9a7e636c0f437dae18e388faf8790a96e862c2f1ca517dc671e7d1cfe0348"} // 0x3ad4C1808d207433d6a476411044Eb6eE38b4849
@@ -127,6 +126,7 @@ var (
 )
 
 var (
+	//Just 10 accounts for now, increase if needed
 	prefundedAccounts = []*spammer.Account{&a101, &a102, &a103, &a104, &a105, &a106, &a107, &a108, &a109, &a110} 
 )
 
