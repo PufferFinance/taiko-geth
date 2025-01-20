@@ -81,7 +81,7 @@ func (s *Spammer) sendTxs() {
 				}
 				tx := types.NewTx(legacyTx)
 				// Sign and send the tx
-				signedTx, err := s.client.SendTx(account, tx)
+				_, err := s.client.SendTx(account, tx)
 				if err != nil {
 					s.logger.Error("Failed to send tx", "error", err)
 					continue
@@ -110,7 +110,7 @@ func (s *Spammer) PrefundAccounts() {
 		legacyTx := &types.LegacyTx{
 			Nonce:    nonce,
 			To:       account.Address(),
-			Value:    big.NewInt(100000000000000), 
+			Value:    big.NewInt(10000000000000000), 
 			Gas:      21000,
 			GasPrice: big.NewInt(24000000000),
 		}
@@ -160,4 +160,15 @@ func (s *Spammer) PrefundAccounts() {
 	s.logger.Info("Account balance", 
 		"account", sender.Address(), 
 		"balance", balance)
+}
+
+func (s *Spammer) GetBalances() {
+	for _, account := range s.prefundedAccounts {
+		balance, err := s.client.GetBalance(account)
+		if err != nil {
+			s.logger.Error("Failed to get balance", "error", err, "account", account.Address())
+			continue
+		}
+		s.logger.Info("Account balance", "account", account.Address(), "balance", balance)
+	}
 }

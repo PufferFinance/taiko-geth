@@ -9,7 +9,7 @@ var (
 	url     = "http://3.79.42.126:10000"
 	// url     = "http://3.79.42.126:10001"
 	chainID = big.NewInt(8787) // unifi testnet
-	maxTxsPerAccount = uint64(1)
+	maxTxsPerAccount = uint64(3)
 )
 
 var (
@@ -117,8 +117,8 @@ var (
     a196 = spammer.Account{PrivKey: "d9ecc23d368f04a41fc49030958b9ed5baba4733cdd0201c1bb3abddf9a230ea"} // "0x53Da7Fe6BA27a4Dfeed02560e96ccD30A5Dc63cF"
     a197 = spammer.Account{PrivKey: "b6ad5cb8eb9c3d9fce454c9ca986b74f0260d0b07351ecd0d34c623c7b09f078"} // "0x732d8DFcbeE3B9e2B6a42c456Dc6eDeD719A1499"
     a198 = spammer.Account{PrivKey: "1d99ca6dc3b51d045473a5f47afbc1df76f77f95a66779416d25444650cb74f4"} // "0xAD591d2B972d7f1984608878182F5dcb4A02b44F"
-    a199 = spammer.Account{PrivKey: "52e41d4ba5bfc2acbf2ec4a2975842cb24c7fb2034f064597e6155c7ec7d6b56"} // "0x5E2f889C7514B2e035d821bb269859ed1fE0Bdd2"
-    a200 = spammer.Account{PrivKey: "7db66a2bf4271932949d24e684fa710c6a75d38a45fa12e73525c50fdbe09bf2"} // "0x7C7D78fC9641ad28E081DddfeF419eC4D722f079"
+    a199 = spammer.Account{PrivKey: "16d6c53e02f0f06c7e2e37f8a5c0b64b4b3cbef0faa0a3cfea4f20311178b703"} // "0xdE232A3B14083859F97Ad1E9d5b195091709C3af"
+    a200 = spammer.Account{PrivKey: "ceb2b7fd08dc6f40aa455bd675297be952dd62a6131b1c80b4aba08d32042801"} // "0xC102Cce28Da66e181244e129b05700E9739fb8b0"
 )
 
 var (
@@ -127,7 +127,21 @@ var (
 
 var (
 	//Just 10 accounts for now, increase if needed
-	prefundedAccounts = []*spammer.Account{&a101, &a102, &a103, &a104, &a105, &a106, &a107, &a108, &a109, &a110} 
+	prefundedAccounts = []*spammer.Account{
+		&a101, &a102, &a103, &a104, &a105, &a106, &a107, &a108, &a109, &a110, 
+		&a111, &a112, &a113, &a114, &a115, &a116, &a117, &a118, &a119, &a120,
+		&a121, &a122, &a123, &a124, &a125, &a126, &a127, &a128, &a129, &a130,
+		&a131, &a132, &a133, &a134, &a135, &a136, &a137, &a138, &a139, &a140,
+		&a141, &a142, &a143, &a144, &a145, &a146, &a147, &a148, &a149, &a150,
+		&a151, &a152, &a153, &a154, &a155, &a156, &a157, &a158, &a159, &a160,
+		&a161, &a162, &a163, &a164, &a165, &a166, &a167, &a168, &a169, &a170,
+		&a171, &a172, &a173, &a174, &a175, &a176, &a177, &a178, &a179, &a180,
+		&a181, &a182, &a183, &a184, &a185, &a186, &a187, &a188, &a189, &a190,
+		&a191, &a192, &a193, &a194, &a195, &a196, &a197, &a198, &a199, &a200,
+	}
+	// prefundedAccounts = []*spammer.Account{
+	// 	&a199, &a200,
+	// }
 )
 
 

@@ -20,5 +20,6 @@ func main() {
 
 	// Send n(maxTxsPerAccount) transactions per prefunded account
 	spammer.Start()
+	// spammer.GetBalances()
 }
 
