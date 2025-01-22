@@ -13,7 +13,7 @@ var (
 	InternalDevnetOntakeBlock = new(big.Int).SetUint64(2)
 	HeklaOntakeBlock          = new(big.Int).SetUint64(840_512)
 	MainnetOntakeBlock        = new(big.Int).SetUint64(538_304)
-	UniFiDevnetOntakeBlock    = new(big.Int).SetUint64(2)
+	UniFiDevnetOntakeBlock    = new(big.Int).SetUint64(0)
 	UniFiTestnetOntakeBlock   = new(big.Int).SetUint64(0)
 )
 
