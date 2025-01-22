@@ -11,6 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus"
 	"github.com/ethereum/go-ethereum/core/state"
+	"github.com/ethereum/go-ethereum/core/tracing"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/log"
@@ -45,12 +46,16 @@ type Taiko struct {
 var _ = new(Taiko)
 
 func New(chainConfig *params.ChainConfig) *Taiko {
-	//taikoL2AddressPrefix := strings.TrimPrefix(chainConfig.ChainID.String(), "0")
-	taikoL2Address := common.HexToAddress("0x9A7fe8e9852c684DD03ce9caEa003F5Fc0a3135b")
+	taikoL2AddressPrefix := strings.TrimPrefix(chainConfig.ChainID.String(), "0")
 
 	return &Taiko{
-		chainConfig:    chainConfig,
-		taikoL2Address: taikoL2Address,
+		chainConfig: chainConfig,
+		taikoL2Address: common.HexToAddress(
+			"0x" +
+				taikoL2AddressPrefix +
+				strings.Repeat("0", common.AddressLength*2-len(taikoL2AddressPrefix)-len(TaikoL2AddressSuffix)) +
+				TaikoL2AddressSuffix,
+		),
 	}
 }
 
@@ -197,13 +202,17 @@ func (t *Taiko) Prepare(chain consensus.ChainHeaderReader, header *types.Header)
 //
 // Note: The block header and state database might be updated to reflect any
 // consensus rules that happen at finalization (e.g. block rewards).
-func (t *Taiko) Finalize(chain consensus.ChainHeaderReader, header *types.Header, state *state.StateDB, txs []*types.Transaction, uncles []*types.Header, withdrawals []*types.Withdrawal) {
+func (t *Taiko) Finalize(chain consensus.ChainHeaderReader, header *types.Header, state *state.StateDB, body *types.Body) {
 	// no block rewards in l2
 	header.UncleHash = types.CalcUncleHash(nil)
 	header.Difficulty = common.Big0
 	// Withdrawals processing.
-	for _, w := range withdrawals {
-		state.AddBalance(w.Address, uint256.MustFromBig(new(big.Int).SetUint64(w.Amount)))
+	for _, w := range body.Withdrawals {
+		state.AddBalance(
+			w.Address,
+			uint256.MustFromBig(new(big.Int).SetUint64(w.Amount)),
+			tracing.BalanceIncreaseWithdrawal,
+		)
 	}
 	header.Root = state.IntermediateRoot(true)
 }
@@ -213,14 +222,14 @@ func (t *Taiko) Finalize(chain consensus.ChainHeaderReader, header *types.Header
 //
 // Note: The block header and state database might be updated to reflect any
 // consensus rules that happen at finalization (e.g. block rewards).
-func (t *Taiko) FinalizeAndAssemble(chain consensus.ChainHeaderReader, header *types.Header, state *state.StateDB, txs []*types.Transaction, uncles []*types.Header, receipts []*types.Receipt, withdrawals []*types.Withdrawal) (*types.Block, error) {
-	if withdrawals == nil {
-		withdrawals = make([]*types.Withdrawal, 0)
+func (t *Taiko) FinalizeAndAssemble(chain consensus.ChainHeaderReader, header *types.Header, state *state.StateDB, body *types.Body, receipts []*types.Receipt) (*types.Block, error) {
+	if body.Withdrawals == nil {
+		body.Withdrawals = make([]*types.Withdrawal, 0)
 	}
 
 	// Verify anchor transaction
-	if len(txs) != 0 { // Transactions list might be empty when building empty payload.
-		isAnchor, err := t.ValidateAnchorTx(txs[0], header)
+	if len(body.Transactions) != 0 { // Transactions list might be empty when building empty payload.
+		isAnchor, err := t.ValidateAnchorTx(body.Transactions[0], header)
 		if err != nil {
 			return nil, err
 		}
@@ -230,10 +239,8 @@ func (t *Taiko) FinalizeAndAssemble(chain consensus.ChainHeaderReader, header *t
 	}
 
 	// Finalize block
-	t.Finalize(chain, header, state, txs, uncles, withdrawals)
-	return types.NewBlockWithWithdrawals(
-		header, txs, nil /* ignore uncles */, receipts, withdrawals, trie.NewStackTrie(nil),
-	), nil
+	t.Finalize(chain, header, state, body)
+	return types.NewBlock(header, body, receipts, trie.NewStackTrie(nil)), nil
 }
 
 // Seal generates a new sealing request for the given input block and pushes
