@@ -9,7 +9,6 @@ import (
 
 var balancesNumber int
 
-// helloCmd represents the 'hello' command
 var balancesCommand = &cobra.Command{
 	Use:   "balances",
 	Short: "Get the balances of the pre-set accounts",
@@ -26,10 +25,7 @@ var balancesCommand = &cobra.Command{
 }
 
 func init() {
-	// Add helloCmd as a subcommand of rootCmd
 	rootCmd.AddCommand(balancesCommand)
 
-	// Register flags for the hello command
-	//helloCmd.Flags().StringVarP(&name, "num", "n", 1, "Name to greet")
 	balancesCommand.Flags().IntVarP(&balancesNumber, "accounts", "a", 1, "Number of accounts to prefund")
 }

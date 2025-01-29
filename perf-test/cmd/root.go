@@ -6,11 +6,11 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "send-spam",
-	Short: "MyCLI is a sample CLI application",
-	Long:  `A longer description that spans multiple lines.`,
+	Use:   "perf-test",
+	Short: "perf-test is a tool to run tests for sending transactions",
+	Long:  `Send a lot of transactions at once to test the TPS.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Hello from MyCLI!")
+		fmt.Println("Invalid command, please run ./perf-test --help")
 	},
 }
 

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"sync/atomic"
 	"time"
 
 	"github.com/charmbracelet/log"
@@ -17,8 +18,9 @@ import (
 type EthClient struct {
 	ctx context.Context
 	*ethclient.Client
-	chainID *big.Int
-	logger  *log.Logger
+	chainID   *big.Int
+	logger    *log.Logger
+	txCounter uint64
 }
 
 func NewEthClient(ctx context.Context, url string, chainID *big.Int, logger *log.Logger) (*EthClient, error) {
@@ -26,7 +28,7 @@ func NewEthClient(ctx context.Context, url string, chainID *big.Int, logger *log
 	if err != nil {
 		return nil, err
 	}
-	return &EthClient{ctx, client, chainID, logger}, nil
+	return &EthClient{ctx, client, chainID, logger, 0}, nil
 }
 
 func (ec *EthClient) GetBalance(account *Account) (*big.Int, error) {
@@ -71,7 +73,11 @@ func (ec *EthClient) GetNonce(account *Account) (uint64, error) {
 }
 
 func (ec *EthClient) SendTx(account *Account, tx *types.Transaction) (*types.Transaction, error) {
-	ec.logger.Info("Sending tx", "nonce", tx.Nonce(), "to", tx.To().Hex(), "value", tx.Value().String(), "gas", tx.Gas(), "gas price", tx.GasPrice().String(), "private key", account.Address())
+	count := atomic.AddUint64(&ec.txCounter, 1)
+
+	if count%100 == 0 {
+		ec.logger.Info("Sending tx ", '#', count, "nonce", tx.Nonce(), "to", tx.To().Hex(), "value", tx.Value().String(), "gas", tx.Gas(), "gas price", tx.GasPrice().String(), "private key", account.Address())
+	}
 	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(ec.chainID), account.PrivateKey())
 	if err != nil {
 		ec.logger.Error("Failed to sign transaction", "error", err)
