@@ -98,7 +98,7 @@ func (ec *EthClient) LogReceipt(tx *types.Transaction) error {
 	if err != nil {
 		return fmt.Errorf("failed to get transaction receipt: %w", err)
 	}
-	
+
 	if receipt == nil {
 		return fmt.Errorf("receipt not found for transaction %s", tx.Hash().Hex())
 	}
@@ -110,7 +110,7 @@ func (ec *EthClient) LogReceipt(tx *types.Transaction) error {
 		"cumulative gas used", receipt.CumulativeGasUsed,
 		"effective gas price", receipt.EffectiveGasPrice,
 		"gas used", receipt.GasUsed)
-	
+
 	return nil
 }
 

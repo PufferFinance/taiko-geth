@@ -11,13 +11,13 @@ import (
 )
 
 type Spammer struct {
-	ctx              context.Context
-	cancel           context.CancelFunc
-	wg               *sync.WaitGroup
-	client           *EthClient
-	logger           *log.Logger
-	accounts         []*Account
-	maxTxsPerAccount uint64
+	ctx               context.Context
+	cancel            context.CancelFunc
+	wg                *sync.WaitGroup
+	client            *EthClient
+	logger            *log.Logger
+	accounts          []*Account
+	maxTxsPerAccount  uint64
 	prefundedAccounts []*Account
 }
 
@@ -32,19 +32,18 @@ func New(url string, chainID *big.Int, logger *log.Logger, accounts []*Account, 
 	}
 
 	return &Spammer{
-		ctx:              ctx,
-		cancel:           cancel,
-		wg:               wg,
-		client:           client,
-		accounts:         accounts,
-		logger:           logger,
-		maxTxsPerAccount: maxTxsPerAccount,
+		ctx:               ctx,
+		cancel:            cancel,
+		wg:                wg,
+		client:            client,
+		accounts:          accounts,
+		logger:            logger,
+		maxTxsPerAccount:  maxTxsPerAccount,
 		prefundedAccounts: prefundedAccounts,
 	}
 }
 
 func (s *Spammer) Start() {
-
 
 	for _, account := range s.prefundedAccounts {
 		nonce, err := s.client.GetNonce(account)
@@ -61,8 +60,6 @@ func (s *Spammer) Start() {
 
 	s.sendTxs()
 }
-
-
 
 func (s *Spammer) sendTxs() {
 	for _, account := range s.prefundedAccounts {
@@ -95,6 +92,7 @@ func (s *Spammer) sendTxs() {
 
 	s.wg.Wait()
 }
+
 // PrefundAccounts is a function that prefunds the accounts with ETH
 func (s *Spammer) PrefundAccounts() {
 	sender := s.accounts[0]
@@ -110,7 +108,7 @@ func (s *Spammer) PrefundAccounts() {
 		legacyTx := &types.LegacyTx{
 			Nonce:    nonce,
 			To:       account.Address(),
-			Value:    big.NewInt(10000000000000000), 
+			Value:    big.NewInt(10000000000000000),
 			Gas:      21000,
 			GasPrice: big.NewInt(24000000000),
 		}
@@ -124,7 +122,7 @@ func (s *Spammer) PrefundAccounts() {
 			return
 		}
 
-		s.logger.Info("Transaction submitted", 
+		s.logger.Info("Transaction submitted",
 			"hash", signedTx.Hash().Hex(),
 			"nonce", nonce,
 			"value", legacyTx.Value,
@@ -157,8 +155,8 @@ func (s *Spammer) PrefundAccounts() {
 		s.logger.Error("Failed to get balance", "error", err, "account", sender.Address())
 		return
 	}
-	s.logger.Info("Account balance", 
-		"account", sender.Address(), 
+	s.logger.Info("Account balance",
+		"account", sender.Address(),
 		"balance", balance)
 }
 
