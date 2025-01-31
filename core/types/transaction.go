@@ -214,6 +214,7 @@ func (tx *Transaction) decodeTyped(b []byte) (TxData, error) {
 	case SetCodeTxType:
 		inner = new(SetCodeTx)
 	default:
+		fmt.Println("didn't match any tx type in decodeTyped")
 		return nil, ErrTxTypeNotSupported
 	}
 	err := inner.decode(b[1:])

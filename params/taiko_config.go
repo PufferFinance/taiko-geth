@@ -61,6 +61,8 @@ var TaikoChainConfig = &ChainConfig{
 	IstanbulBlock:                 common.Big0,
 	BerlinBlock:                   common.Big0,
 	LondonBlock:                   common.Big0,
+	CancunTime:                    u64(0),
+	PragueTime:                    u64(0),
 	ShanghaiTime:                  u64(0),
 	MergeNetsplitBlock:            nil,
 	TerminalTotalDifficulty:       common.Big0,

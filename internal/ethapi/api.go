@@ -1991,10 +1991,15 @@ func (api *TransactionAPI) FillTransaction(ctx context.Context, args Transaction
 // SendRawTransaction will add the signed transaction to the transaction pool.
 // The sender is responsible for signing the transaction and using the correct nonce.
 func (api *TransactionAPI) SendRawTransaction(ctx context.Context, input hexutil.Bytes) (common.Hash, error) {
+	fmt.Println("SendRawTransaction")
+	fmt.Println("input", input.String())
 	tx := new(types.Transaction)
+	fmt.Println("unmarshalling")
 	if err := tx.UnmarshalBinary(input); err != nil {
+		fmt.Println("error unmarshalling", err)
 		return common.Hash{}, err
 	}
+	fmt.Println("submitting")
 	return SubmitTransaction(ctx, api.b, tx)
 }
 

@@ -18,6 +18,7 @@ package engine
 
 import (
 	"fmt"
+	"log"
 	"math/big"
 	"slices"
 
@@ -243,6 +244,44 @@ func ExecutableDataToBlock(data ExecutableData, versionedHashes []common.Hash, b
 	if err != nil {
 		return nil, err
 	}
+
+	// Log all fields of the header
+	log.Println("(GETH) Header Fields:")
+	log.Println("ParentHash:", block.Header().ParentHash.Hex())
+	log.Println("UncleHash:", block.Header().UncleHash.Hex())
+	log.Println("Coinbase:", block.Header().Coinbase.Hex())
+	log.Println("Root:", block.Header().Root.Hex())
+	log.Println("TxHash:", block.Header().TxHash.Hex())
+	log.Println("ReceiptHash:", block.Header().ReceiptHash.Hex())
+	log.Println("Bloom:", block.Header().Bloom)
+	log.Println("Difficulty:", block.Header().Difficulty.String())
+	log.Println("Number:", block.Header().Number.String())
+	log.Println("GasLimit:", block.Header().GasLimit)
+	log.Println("GasUsed:", block.Header().GasUsed)
+	log.Println("Time:", block.Header().Time)
+	log.Println("Extra:", block.Header().Extra)
+	log.Println("MixDigest:", block.Header().MixDigest.Hex())
+	log.Println("Nonce:", block.Header().Nonce.Uint64())
+	if block.Header().BaseFee != nil {
+		log.Println("BaseFee:", block.Header().BaseFee.String())
+	}
+	if block.Header().WithdrawalsHash != nil {
+		log.Println("WithdrawalsHash:", block.Header().WithdrawalsHash.Hex())
+	}
+	if block.Header().BlobGasUsed != nil {
+		log.Println("BlobGasUsed:", *block.Header().BlobGasUsed)
+	}
+	if block.Header().ExcessBlobGas != nil {
+		log.Println("ExcessBlobGas:", *block.Header().ExcessBlobGas)
+	}
+	if block.Header().ParentBeaconRoot != nil {
+		log.Println("ParentBeaconRoot:", block.Header().ParentBeaconRoot.Hex())
+	}
+	if block.Header().RequestsHash != nil {
+		log.Println("RequestsHash:", block.Header().RequestsHash.Hex())
+	}
+	log.Println("BlockHash:", block.Hash().Hex())
+	
 	if block.Hash() != data.BlockHash {
 		return nil, fmt.Errorf("blockhash mismatch, want %x, got %x", data.BlockHash, block.Hash())
 	}
@@ -282,6 +321,7 @@ func ExecutableDataToBlockNoHash(data ExecutableData, versionedHashes []common.H
 	// Only set withdrawalsRoot if it is non-nil. This allows CLs to use
 	// ExecutableData before withdrawals are enabled by marshaling
 	// Withdrawals as the json null value.
+	// Note 2: We derive the withdrawalsRoot from the withdrawals list here
 	var withdrawalsRoot *common.Hash
 	if data.Withdrawals != nil {
 		h := types.DeriveSha(types.Withdrawals(data.Withdrawals), trie.NewStackTrie(nil))
@@ -305,6 +345,7 @@ func ExecutableDataToBlockNoHash(data ExecutableData, versionedHashes []common.H
 		UncleHash:        types.EmptyUncleHash,
 		Coinbase:         data.FeeRecipient,
 		Root:             data.StateRoot,
+		// Note 1: We derive the txHash from the transactions list here
 		TxHash:           types.DeriveSha(types.Transactions(txs), trie.NewStackTrie(nil)),
 		ReceiptHash:      data.ReceiptsRoot,
 		Bloom:            types.BytesToBloom(data.LogsBloom),

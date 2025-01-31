@@ -411,6 +411,7 @@ func (s eip2930Signer) Sender(tx *Transaction) (common.Address, error) {
 		// id, add 27 to become equivalent to unprotected Homestead signatures.
 		V = new(big.Int).Add(V, big.NewInt(27))
 	default:
+		fmt.Println("didn't match any tx type in sender 4, ", tx.Type())
 		return common.Address{}, ErrTxTypeNotSupported
 	}
 	if tx.ChainId().Cmp(s.chainId) != 0 {
@@ -432,6 +433,7 @@ func (s eip2930Signer) SignatureValues(tx *Transaction, sig []byte) (R, S, V *bi
 		R, S, _ = decodeSignature(sig)
 		V = big.NewInt(int64(sig[64]))
 	default:
+		fmt.Println("didn't match any tx type in signature values 4, ", tx.Type())
 		return nil, nil, nil, ErrTxTypeNotSupported
 	}
 	return R, S, V, nil
@@ -494,6 +496,7 @@ var big8 = big.NewInt(8)
 
 func (s EIP155Signer) Sender(tx *Transaction) (common.Address, error) {
 	if tx.Type() != LegacyTxType {
+		fmt.Println("didn't match any tx type in sender 1, ", tx.Type())
 		return common.Address{}, ErrTxTypeNotSupported
 	}
 	if !tx.Protected() {
@@ -512,6 +515,7 @@ func (s EIP155Signer) Sender(tx *Transaction) (common.Address, error) {
 // needs to be in the [R || S || V] format where V is 0 or 1.
 func (s EIP155Signer) SignatureValues(tx *Transaction, sig []byte) (R, S, V *big.Int, err error) {
 	if tx.Type() != LegacyTxType {
+		fmt.Println("didn't match any tx type in signature values 3, ", tx.Type())
 		return nil, nil, nil, ErrTxTypeNotSupported
 	}
 	R, S, V = decodeSignature(sig)
@@ -557,6 +561,7 @@ func (hs HomesteadSigner) SignatureValues(tx *Transaction, sig []byte) (r, s, v 
 
 func (hs HomesteadSigner) Sender(tx *Transaction) (common.Address, error) {
 	if tx.Type() != LegacyTxType {
+		fmt.Println("didn't match any tx type in sender 2, ", tx.Type())
 		return common.Address{}, ErrTxTypeNotSupported
 	}
 	v, r, s := tx.RawSignatureValues()
@@ -578,6 +583,7 @@ func (fs FrontierSigner) Equal(s2 Signer) bool {
 
 func (fs FrontierSigner) Sender(tx *Transaction) (common.Address, error) {
 	if tx.Type() != LegacyTxType {
+		fmt.Println("didn't match any tx type in sender 3, ", tx.Type())
 		return common.Address{}, ErrTxTypeNotSupported
 	}
 	v, r, s := tx.RawSignatureValues()
@@ -588,6 +594,7 @@ func (fs FrontierSigner) Sender(tx *Transaction) (common.Address, error) {
 // needs to be in the [R || S || V] format where V is 0 or 1.
 func (fs FrontierSigner) SignatureValues(tx *Transaction, sig []byte) (r, s, v *big.Int, err error) {
 	if tx.Type() != LegacyTxType {
+		fmt.Println("didn't match any tx type in signature values 2, ", tx.Type())
 		return nil, nil, nil, ErrTxTypeNotSupported
 	}
 	r, s, v = decodeSignature(sig)
